@@ -2,7 +2,7 @@
 
 close all; clear; clc;
 
-addpath('routine');
+addpath('routine');    addpath('routine/fastF0Nls');
 load sunspot.dat
 originSignal = sunspot(:,2);
 
@@ -14,7 +14,7 @@ for SNR = (-4:1:2)
     end
     signals = [];    results = [];
     save(filename,'signals','results')
-    parfor s = 1 : S
+    for s = 1 : S
         % generate signal
         % rng(s) % For reproducibility
         noise = randn(size(originSignal));
