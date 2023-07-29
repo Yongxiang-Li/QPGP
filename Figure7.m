@@ -2,11 +2,11 @@
 
 close all; clear; clc;
 
-addpath('routine');    addpath('routine/fastF0Nls');
+addpath('routine', 'routine/fastF0Nls');
 load sunspot.dat
 originSignal = sunspot(:,2);
 
-S = 100;
+S = 500;
 for SNR = (-4:1:2)
     filename = ['Sunspot(SNR=',num2str(SNR),').mat'];
     if exist(filename, 'file')
@@ -16,10 +16,11 @@ for SNR = (-4:1:2)
     save(filename,'signals','results')
     for s = 1 : S
         % generate signal
-        % rng(s) % For reproducibility
+        rng(s) % For reproducibility
         noise = randn(size(originSignal));
-        noise = noise*rms(originSignal)/rms(noise)/10^(SNR/20); % 20*log10(rms(originSignal)/rms(noise))
+        noise = noise*rms(originSignal)/rms(noise)/10^(SNR/20);
         noiseSignal = originSignal + noise;
+        % noiseSignal = noiseSignal - mean(noiseSignal); % Mean substraction
         signal = struct('SNR',SNR,'noiseSignal',noiseSignal);
         % init analysis
         result = struct();
@@ -31,7 +32,7 @@ for SNR = (-4:1:2)
         tic
         modelQPGP = fit_QPGP(period, noiseSignal, @regpoly0, @period_sin_gauss_cov, lob, upb);
         modelQPGP.time = toc;
-        % PGP
+        % CPGP
         lob = [0.1 0.1];
         upb = [2 3];
         tic
@@ -59,7 +60,8 @@ for SNR = (-4:1:2)
         modelFNLS.maxNoHarmonics = 10;
         modelFNLS.f0Bounds = [1/period(end), 1/period(1)];
         tic
-        [modelFNLS] = FNLS( noiseSignal, length(noiseSignal), modelFNLS.maxNoHarmonics, modelFNLS.f0Bounds );
+        % Include the DC component for FNLS
+        [modelFNLS] = FNLS( noiseSignal, length(noiseSignal), modelFNLS.maxNoHarmonics, modelFNLS.f0Bounds, true );
         modelFNLS.time = toc;
          % EPGP
         lob = [0.1 0.1 1];
@@ -91,15 +93,15 @@ count_FNLS = zeros(20,1);
 SNR = -4:2;
 periodRange = 11;
 p = length(SNR);
-period_NRC = zeros(100, p);
-period_QPGP = zeros(100, p);
-period_EPGP = zeros(100, p);
-period_PGP = zeros(100, p);
-period_MLPE = zeros(100, p);
-period_FNLS = zeros(100, p);
+period_NRC = zeros(S, p);
+period_QPGP = zeros(S, p);
+period_EPGP = zeros(S, p);
+period_PGP = zeros(S, p);
+period_MLPE = zeros(S, p);
+period_FNLS = zeros(S, p);
 for j = 1:p
     load(['Sunspot(SNR=',num2str(SNR(j)),').mat'])
-    for i = 1:100
+    for i = 1:S
         period_NRC(i,j) = results(i).modelNRCPE.period;
         if  ismember (period_NRC(i,j),periodRange)
             count_NRC(j) = count_NRC(j) + 1;
@@ -129,13 +131,14 @@ for j = 1:p
     
 end
 
+
 figure;
-y=[count_PGP(1:p) count_QPGP(1:p) count_EPGP(1:p) count_FNLS(1:p) count_NRC(1:p) count_MLPE(1:p)];
+y=[count_PGP(1:p) count_QPGP(1:p) count_EPGP(1:p) count_FNLS(1:p) count_NRC(1:p) count_MLPE(1:p)]/5;
 b=bar(y);
 grid on;
 set(gca,'XTickLabel',{SNR})
 ylim([0 100])
-legend({'PGP','QPGP','EPGP','FNLS','NRC','MLPE'},'Location','NorthWest')
+legend({'CPGP','QPGP','EPGP','FNLS','NRC','MLPE'},'Location','NorthWest')
 xlabel('SNR (dB)');
 ylabel('Accuracy (%)');
 

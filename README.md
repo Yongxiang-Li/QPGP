@@ -10,7 +10,7 @@ Abstract--- Pseudo-periodic signals are frequently encountered in modern scienti
 
 Instructions:
 1. Please download and install MATLAB to use this code.
-2. Add \routine\ as well as \smt\ package to your workpath.
+2. Add \routine\ package to your workpath.
 3. fit_QPGP.m in the routine package is the main function to fit the QPGP model.
 
 ------------------------------------------------------------------

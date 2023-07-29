@@ -1,8 +1,12 @@
-function [ model] = FNLS( Signal, segmentLength, maxNoHarmonics, f0Bounds )
+function [ model] = FNLS( Signal, segmentLength, maxNoHarmonics, f0Bounds, bool )
 % for simply using fast fundamental freqeuncy estimation
 %   need folder: fastF0Nls
     model = struct();
-    f0Estimator = fastF0Nls(segmentLength, maxNoHarmonics, f0Bounds);
+    if nargin == 4
+        f0Estimator = fastF0Nls(segmentLength, maxNoHarmonics, f0Bounds);
+    elseif nargin == 5
+        f0Estimator = fastF0Nls(segmentLength, maxNoHarmonics, f0Bounds, bool);
+    end
     
     [f0Estimate]= f0Estimator.estimate(Signal);
     period = round(1/f0Estimate);

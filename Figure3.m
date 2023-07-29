@@ -1,9 +1,10 @@
+% Simulation study
+
 close all;
 clear;
 clc;
 
-addpath('../routine');
-addpath('../smt');
+addpath('routine', 'routine/fastF0Nls');
 
 % Vibration Signal
 f0 = 7;
@@ -13,8 +14,6 @@ S = 100;    % number of simulations
 SNR = -16;
 delta = 10^(-SNR/20);
 
-parpool(38);
-
 for N = 1000:1000:8000
     filename = ['N_VIBRATION(SNR=',num2str(SNR),';N=',num2str(N),').mat'];
     if exist(filename, 'file')
@@ -22,7 +21,7 @@ for N = 1000:1000:8000
     end
     signals = [];    results = [];
     save(filename,'signals','results')
-    parfor s = 1 : S
+    for s = 1 : S
         % generate signal
         fs = 80+unidrnd(120);
         [originSignal, t] = get_normal_transient_signal(N, f0, zeta0, T0, fs, 0.01); % get signal
@@ -49,7 +48,7 @@ for N = 1000:1000:8000
         modelEPGP = fit_EPGP(period, noiseSignal, @regpoly0, @exponential_periodic_cov, lob, upb);
         EPGPtime = toc;
         modelEPGP.time = EPGPtime;
-        % PGP
+        % CPGP
         lob = [0.1 0.1];
         upb = [10 15];
         tic
@@ -57,7 +56,7 @@ for N = 1000:1000:8000
         modelCPGP.time = toc;
         % TPGP
         tic
-        modelTPGP = fit_TPGP(period, signal, @regpoly0, @period_sin_gauss_cov, lob, upb);
+        modelTPGP = fit_TPGP(period, noiseSignal, @regpoly0, @period_sin_gauss_cov, lob, upb);
         TPGPtime = toc;
         modelTPGP.time = TPGPtime;
         % MLPE
