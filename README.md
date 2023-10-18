@@ -1,4 +1,5 @@
 # QPGP
+
 Code for the paper: Yongxiang LI, Yunji ZHANG, Qian XIAO, Jianguo WU*. (2023). Quasi-Periodic Gaussian Process Modeling of Pseudo-Periodic Signals. IEEE Transactions on Signal Processing. Accepted. DOI: 10.1109/TSP.2023.3316589
 Link: https://ieeexplore.ieee.org/document/10256149?source=authoralert
 ------------------------------------------------------------------
@@ -23,6 +24,7 @@ Notes:
 ------------------------------------------------------------------
 
 Citation:
+If you find our work useful in your research, please consider citing:
 @article{Li2023QPGP,
   title={Quasi-Periodic Gaussian Process Modeling of Pseudo-periodic Signals},
   author={Li, Yongxiang and Zhang, Yunji and Xiao, Qian and Wu, Jianguo},
